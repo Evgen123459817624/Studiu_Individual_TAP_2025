@@ -1,6 +1,15 @@
 package org.example.studiu_individual_tap_2025;
 
+import java.io.BufferedReader;
+
+import java.io.InputStreamReader;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TableColumn;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -11,6 +20,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.scene.text.Text;
+
 
 
 public class OcupareSomajWindow {
@@ -83,28 +93,78 @@ public class OcupareSomajWindow {
         item1.getStyleClass().add("card1");
         Image fileIcon = new Image(getClass().getResourceAsStream("/fileIcon.png"), 50, 60, false, false);
         ImageView imageViewFileIcon1 = new ImageView(fileIcon);
-        VBox content1 = new VBox();
-        Label title1 = new Label("Trim. I 2025");
-        title1.setWrapText(true);
-        title1.getStyleClass().add("card-title");
+        // === în loc de VBox content1 = new VBox(); ===
+VBox content1 = new VBox(10);
+Label title1 = new Label("Trim. I 2025");
+title1.setWrapText(true);
+title1.getStyleClass().add("card-title");
 
-        Region line = new Region();
-        line.setMinHeight(1);
-        line.setMaxWidth(Double.MAX_VALUE);
-        line.setStyle("-fx-background-color: #d6d6d6;");
+// === Creăm tabelul ===
+TableView<Indicator> table = new TableView<>();
 
-        content1.getChildren().addAll(
-                title1,
-                createDataRow(content1, "Forța de muncă, mii", "[0,00]"),
-                createDataRow(content1, "Rata de participare, %", "[0,00]"),
-                createDataRow(content1, "Populaţie ocupată, mii", "[0,00]"),
-                createDataRow(content1, "Rata de ocupare, %", "[0,00]"),
-                createDataRow(content1, "Şomeri BIM, mii", "[0,00]"),
-                createDataRow(content1, "Rata şomajului BIM, %", "[0,00]"),
+TableColumn<Indicator, String> colIndicator = new TableColumn<>("Indicator");
+colIndicator.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDenumire()));
+colIndicator.setPrefWidth(250);
 
-                line
-        );
-        item1.getChildren().addAll(imageViewFileIcon1, content1);
+TableColumn<Indicator, String> colValoare = new TableColumn<>("Valoare");
+colValoare.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValoare()));
+colValoare.setPrefWidth(100);
+
+table.getColumns().addAll(colIndicator, colValoare);
+table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+// === Citim datele din CSV ===
+ObservableList<Indicator> data = FXCollections.observableArrayList();
+
+try (BufferedReader br = new BufferedReader(
+        new InputStreamReader(
+                getClass().getResourceAsStream("/csv_files/ocupare_somaj1.csv"),
+                java.nio.charset.StandardCharsets.UTF_8))) {
+
+    String lineCsv;
+    while ((lineCsv = br.readLine()) != null) {
+        lineCsv = lineCsv.trim();
+        if (lineCsv.isEmpty()) continue;
+
+        int lastComma = Math.max(lineCsv.lastIndexOf(','), lineCsv.lastIndexOf(';'));
+        if (lastComma != -1) {
+            String denumire = lineCsv.substring(0, lastComma).replace("\"", "").trim();
+            String valoare = lineCsv.substring(lastComma + 1).replace("\"", "").trim();
+            data.add(new Indicator(denumire, valoare));
+        } else {
+            System.out.println("⚠️ Linie ignorată: " + lineCsv);
+        }
+    }
+    System.out.println("✅ Am încărcat " + data.size() + " rânduri din CSV.");
+} catch (Exception e) {
+    e.printStackTrace();
+}
+
+
+
+table.setItems(data);
+table.setFixedCellSize(25);
+
+// actualizează automat înălțimea doar dacă există rânduri
+table.prefHeightProperty().bind(
+    Bindings.when(Bindings.isEmpty(table.getItems()))
+            .then(100) // înălțime minimă când nu sunt date
+            .otherwise(
+                table.fixedCellSizeProperty().multiply(Bindings.size(table.getItems()).add(1.01))
+            )
+);
+// === Linie separator opțională ===
+Region line = new Region();
+line.setMinHeight(1);
+line.setMaxWidth(Double.MAX_VALUE);
+line.setStyle("-fx-background-color: #d6d6d6;");
+
+// === Adăugăm în content1 ===
+content1.getChildren().addAll(title1, table, line);
+item1.getChildren().addAll(imageViewFileIcon1, content1);
+
+
+
 
         HBox item2 = new HBox();
         HBox.setHgrow(item2, Priority.ALWAYS);
