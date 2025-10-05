@@ -24,36 +24,6 @@ import javafx.scene.text.Text;
 
 
 public class OcupareSomajWindow {
-    private VBox createDataRow(VBox item, String label, String value) {
-        GridPane row = new GridPane();
-        row.getStyleClass().add("data-row");
-
-        Label lbl = new Label(label);
-        lbl.setWrapText(true);
-
-        Label val = new Label(value);
-        GridPane.setHalignment(val, HPos.RIGHT);
-
-        ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPercentWidth(70);
-        ColumnConstraints col2 = new ColumnConstraints();
-        col2.setPercentWidth(30);
-        row.getColumnConstraints().addAll(col1, col2);
-
-        row.add(lbl, 0, 0);
-        row.add(val, 1, 0);
-
-
-        // Linie
-        Region line = new Region();
-        line.setMinHeight(1);
-        line.setMaxWidth(Double.MAX_VALUE);
-        line.setStyle("-fx-background-color: #d6d6d6;");
-
-        VBox container = new VBox(line, row);
-        return container;
-    }
-
 
     public void open() {
         Stage stage = new Stage();

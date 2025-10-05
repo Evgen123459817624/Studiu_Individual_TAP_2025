@@ -1,11 +1,17 @@
 package org.example.studiu_individual_tap_2025;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TableColumn;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -15,35 +21,6 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 public class AccidenteMuncaWindow {
-    private VBox createDataRow(VBox item, String label, String value) {
-        GridPane row = new GridPane();
-        row.getStyleClass().add("data-row");
-
-        Label lbl = new Label(label);
-        lbl.setWrapText(true);
-
-        Label val = new Label(value);
-        GridPane.setHalignment(val, HPos.RIGHT);
-
-        ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPercentWidth(70);
-        ColumnConstraints col2 = new ColumnConstraints();
-        col2.setPercentWidth(30);
-        row.getColumnConstraints().addAll(col1, col2);
-
-        row.add(lbl, 0, 0);
-        row.add(val, 1, 0);
-
-
-        // Linie
-        Region line = new Region();
-        line.setMinHeight(1);
-        line.setMaxWidth(Double.MAX_VALUE);
-        line.setStyle("-fx-background-color: #d6d6d6;");
-
-        VBox container = new VBox(line, row);
-        return container;
-    }
 
 
     public void open() {
@@ -84,22 +61,69 @@ public class AccidenteMuncaWindow {
         item1.getStyleClass().add("card1");
         Image fileIcon = new Image(getClass().getResourceAsStream("/fileIcon.png"), 50, 60, false, false);
         ImageView imageViewFileIcon1 = new ImageView(fileIcon);
-        VBox content1 = new VBox();
+        VBox content1 = new VBox(10);
         Label title1 = new Label("2023");
         title1.setWrapText(true);
         title1.getStyleClass().add("card-title");
+
+        // === Creăm primul tabel ===
+        TableView<Indicator> table1 = new TableView<>();
+
+        TableColumn<Indicator, String> colIndicator1 = new TableColumn<>("Indicator");
+        colIndicator1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDenumire()));
+        colIndicator1.setPrefWidth(250);
+
+        TableColumn<Indicator, String> colValoare1 = new TableColumn<>("Valoare");
+        colValoare1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValoare()));
+        colValoare1.setPrefWidth(100);
+
+        table1.getColumns().addAll(colIndicator1, colValoare1);
+        table1.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        // === Citim datele din primul CSV ===
+        ObservableList<Indicator> data1 = FXCollections.observableArrayList();
+
+        try (BufferedReader br1 = new BufferedReader(
+                new InputStreamReader(
+                        getClass().getResourceAsStream("/csv_files/accidente_munca1.csv"),
+                        java.nio.charset.StandardCharsets.UTF_8))) {
+
+            String lineCsv1;
+            while ((lineCsv1 = br1.readLine()) != null) {
+                lineCsv1 = lineCsv1.trim();
+                if (lineCsv1.isEmpty()) continue;
+
+                int lastComma = Math.max(lineCsv1.lastIndexOf(','), lineCsv1.lastIndexOf(';'));
+                if (lastComma != -1) {
+                    String denumire = lineCsv1.substring(0, lastComma).replace("\"", "").trim();
+                    String valoare = lineCsv1.substring(lastComma + 1).replace("\"", "").trim();
+                    data1.add(new Indicator(denumire, valoare));
+                } else {
+                    System.out.println("Linie ignorată în accidente_munca1.csv: " + lineCsv1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        table1.setItems(data1);
+        table1.setFixedCellSize(25);
+
+        // actualizează automat înălțimea doar dacă există rânduri
+        table1.prefHeightProperty().bind(
+            Bindings.when(Bindings.isEmpty(table1.getItems()))
+                    .then(100) // înălțime minimă când nu sunt date
+                    .otherwise(
+                        table1.fixedCellSizeProperty().multiply(Bindings.size(table1.getItems()).add(1.01))
+                    )
+        );
 
         Region line = new Region();
         line.setMinHeight(1);
         line.setMaxWidth(Double.MAX_VALUE);
         line.setStyle("-fx-background-color: #d6d6d6;");
 
-        content1.getChildren().addAll(
-                title1,
-                createDataRow(content1, "Rata accidentelor de muncă, victime la 1000 salariați", "[0,00]"),
-                createDataRow(content1, "Rata accidentelor mortale, accidentați mortal la 1000 salariați", "[0,00]"),
-                line
-        );
+        content1.getChildren().addAll(title1, table1, line);
         item1.getChildren().addAll(imageViewFileIcon1, content1);
 
         HBox item2 = new HBox();
@@ -109,22 +133,69 @@ public class AccidenteMuncaWindow {
         item2.getStyleClass().add("card");
         item2.getStyleClass().add("card2");
         ImageView imageViewFileIcon2 = new ImageView(fileIcon);
-        VBox content2 = new VBox();
+        VBox content2 = new VBox(10);
         Label title2 = new Label("2024");
         title2.setWrapText(true);
         title2.getStyleClass().add("card-title");
+
+        // === Creăm al doilea tabel ===
+        TableView<Indicator> table2 = new TableView<>();
+
+        TableColumn<Indicator, String> colIndicator2 = new TableColumn<>("Indicator");
+        colIndicator2.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDenumire()));
+        colIndicator2.setPrefWidth(250);
+
+        TableColumn<Indicator, String> colValoare2 = new TableColumn<>("Valoare");
+        colValoare2.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValoare()));
+        colValoare2.setPrefWidth(100);
+
+        table2.getColumns().addAll(colIndicator2, colValoare2);
+        table2.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        // === Citim datele din al doilea CSV ===
+        ObservableList<Indicator> data2 = FXCollections.observableArrayList();
+
+        try (BufferedReader br2 = new BufferedReader(
+                new InputStreamReader(
+                        getClass().getResourceAsStream("/csv_files/accidente_munca2.csv"),
+                        java.nio.charset.StandardCharsets.UTF_8))) {
+
+            String lineCsv2;
+            while ((lineCsv2 = br2.readLine()) != null) {
+                lineCsv2 = lineCsv2.trim();
+                if (lineCsv2.isEmpty()) continue;
+
+                int lastComma = Math.max(lineCsv2.lastIndexOf(','), lineCsv2.lastIndexOf(';'));
+                if (lastComma != -1) {
+                    String denumire = lineCsv2.substring(0, lastComma).replace("\"", "").trim();
+                    String valoare = lineCsv2.substring(lastComma + 1).replace("\"", "").trim();
+                    data2.add(new Indicator(denumire, valoare));
+                } else {
+                    System.out.println("Linie ignorată în accidente_munca2.csv: " + lineCsv2);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        table2.setItems(data2);
+        table2.setFixedCellSize(25);
+
+        // actualizează automat înălțimea doar dacă există rânduri
+        table2.prefHeightProperty().bind(
+            Bindings.when(Bindings.isEmpty(table2.getItems()))
+                    .then(100) // înălțime minimă când nu sunt date
+                    .otherwise(
+                        table2.fixedCellSizeProperty().multiply(Bindings.size(table2.getItems()).add(1.01))
+                    )
+        );
 
         Region line2 = new Region();
         line2.setMinHeight(1);
         line2.setMaxWidth(Double.MAX_VALUE);
         line2.setStyle("-fx-background-color: #d6d6d6;");
 
-        content2.getChildren().addAll(
-                title2,
-                createDataRow(content1, "Victime ale accidentelor de muncă, persoane", "[0,00]"),
-                createDataRow(content1, "Accidentați mortal, persoane", "[0,00]"),
-                line2
-        );
+        content2.getChildren().addAll(title2, table2, line2);
         item2.getChildren().addAll(imageViewFileIcon2, content2);
 
         Image goalsImage = new Image(getClass().getResourceAsStream("/goalsImage.png"), 300, 150, false, false);
