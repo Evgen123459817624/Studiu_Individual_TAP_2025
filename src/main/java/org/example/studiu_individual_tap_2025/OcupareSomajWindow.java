@@ -93,75 +93,75 @@ public class OcupareSomajWindow {
         item1.getStyleClass().add("card1");
         Image fileIcon = new Image(getClass().getResourceAsStream("/fileIcon.png"), 50, 60, false, false);
         ImageView imageViewFileIcon1 = new ImageView(fileIcon);
-        // === în loc de VBox content1 = new VBox(); ===
-VBox content1 = new VBox(10);
-Label title1 = new Label("Trim. I 2025");
-title1.setWrapText(true);
-title1.getStyleClass().add("card-title");
+                // === în loc de VBox content1 = new VBox(); ===
+        VBox content1 = new VBox(10);
+        Label title1 = new Label("Trim. I 2025");
+        title1.setWrapText(true);
+        title1.getStyleClass().add("card-title");
 
-// === Creăm tabelul ===
-TableView<Indicator> table = new TableView<>();
+        // === Creăm tabelul ===
+        TableView<Indicator> table = new TableView<>();
 
-TableColumn<Indicator, String> colIndicator = new TableColumn<>("Indicator");
-colIndicator.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDenumire()));
-colIndicator.setPrefWidth(250);
+        TableColumn<Indicator, String> colIndicator = new TableColumn<>("Indicator");
+        colIndicator.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDenumire()));
+        colIndicator.setPrefWidth(250);
 
-TableColumn<Indicator, String> colValoare = new TableColumn<>("Valoare");
-colValoare.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValoare()));
-colValoare.setPrefWidth(100);
+        TableColumn<Indicator, String> colValoare = new TableColumn<>("Valoare");
+        colValoare.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValoare()));
+        colValoare.setPrefWidth(100);
 
-table.getColumns().addAll(colIndicator, colValoare);
-table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table.getColumns().addAll(colIndicator, colValoare);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-// === Citim datele din CSV ===
-ObservableList<Indicator> data = FXCollections.observableArrayList();
+        // === Citim datele din CSV ===
+        ObservableList<Indicator> data = FXCollections.observableArrayList();
 
-try (BufferedReader br = new BufferedReader(
-        new InputStreamReader(
-                getClass().getResourceAsStream("/csv_files/ocupare_somaj1.csv"),
-                java.nio.charset.StandardCharsets.UTF_8))) {
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(
+                        getClass().getResourceAsStream("/csv_files/ocupare_somaj1.csv"),
+                        java.nio.charset.StandardCharsets.UTF_8))) {
 
-    String lineCsv;
-    while ((lineCsv = br.readLine()) != null) {
-        lineCsv = lineCsv.trim();
-        if (lineCsv.isEmpty()) continue;
+            String lineCsv;
+            while ((lineCsv = br.readLine()) != null) {
+                lineCsv = lineCsv.trim();
+                if (lineCsv.isEmpty()) continue;
 
-        int lastComma = Math.max(lineCsv.lastIndexOf(','), lineCsv.lastIndexOf(';'));
-        if (lastComma != -1) {
-            String denumire = lineCsv.substring(0, lastComma).replace("\"", "").trim();
-            String valoare = lineCsv.substring(lastComma + 1).replace("\"", "").trim();
-            data.add(new Indicator(denumire, valoare));
-        } else {
-            System.out.println("⚠️ Linie ignorată: " + lineCsv);
+                int lastComma = Math.max(lineCsv.lastIndexOf(','), lineCsv.lastIndexOf(';'));
+                if (lastComma != -1) {
+                    String denumire = lineCsv.substring(0, lastComma).replace("\"", "").trim();
+                    String valoare = lineCsv.substring(lastComma + 1).replace("\"", "").trim();
+                    data.add(new Indicator(denumire, valoare));
+                } else {
+                    System.out.println("⚠️ Linie ignorată: " + lineCsv);
+                }
+            }
+            System.out.println("✅ Am încărcat " + data.size() + " rânduri din CSV.");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    }
-    System.out.println("✅ Am încărcat " + data.size() + " rânduri din CSV.");
-} catch (Exception e) {
-    e.printStackTrace();
-}
 
 
 
-table.setItems(data);
-table.setFixedCellSize(25);
+        table.setItems(data);
+        table.setFixedCellSize(25);
 
-// actualizează automat înălțimea doar dacă există rânduri
-table.prefHeightProperty().bind(
-    Bindings.when(Bindings.isEmpty(table.getItems()))
-            .then(100) // înălțime minimă când nu sunt date
-            .otherwise(
-                table.fixedCellSizeProperty().multiply(Bindings.size(table.getItems()).add(1.01))
-            )
-);
-// === Linie separator opțională ===
-Region line = new Region();
-line.setMinHeight(1);
-line.setMaxWidth(Double.MAX_VALUE);
-line.setStyle("-fx-background-color: #d6d6d6;");
+        // actualizează automat înălțimea doar dacă există rânduri
+        table.prefHeightProperty().bind(
+            Bindings.when(Bindings.isEmpty(table.getItems()))
+                    .then(100) // înălțime minimă când nu sunt date
+                    .otherwise(
+                        table.fixedCellSizeProperty().multiply(Bindings.size(table.getItems()).add(1.01))
+                    )
+        );
+        // === Linie separator opțională ===
+        Region line = new Region();
+        line.setMinHeight(1);
+        line.setMaxWidth(Double.MAX_VALUE);
+        line.setStyle("-fx-background-color: #d6d6d6;");
 
-// === Adăugăm în content1 ===
-content1.getChildren().addAll(title1, table, line);
-item1.getChildren().addAll(imageViewFileIcon1, content1);
+        // === Adăugăm în content1 ===
+        content1.getChildren().addAll(title1, table, line);
+        item1.getChildren().addAll(imageViewFileIcon1, content1);
 
 
 
@@ -173,27 +173,72 @@ item1.getChildren().addAll(imageViewFileIcon1, content1);
         item2.getStyleClass().add("card");
         item2.getStyleClass().add("card2");
         ImageView imageViewFileIcon2 = new ImageView(fileIcon);
-        VBox content2 = new VBox();
+        VBox content2 = new VBox(10);
         Label title2 = new Label("Trim. I 2025");
         title2.setWrapText(true);
         title2.getStyleClass().add("card-title");
 
+        // === Creăm al doilea tabel ===
+        TableView<Indicator> table2 = new TableView<>();
+
+        TableColumn<Indicator, String> colIndicator2 = new TableColumn<>("Indicator");
+        colIndicator2.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDenumire()));
+        colIndicator2.setPrefWidth(250);
+
+        TableColumn<Indicator, String> colValoare2 = new TableColumn<>("Valoare");
+        colValoare2.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValoare()));
+        colValoare2.setPrefWidth(100);
+
+        table2.getColumns().addAll(colIndicator2, colValoare2);
+        table2.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        // === Citim datele din al doilea CSV ===
+        ObservableList<Indicator> data2 = FXCollections.observableArrayList();
+
+        try (BufferedReader br2 = new BufferedReader(
+                new InputStreamReader(
+                        getClass().getResourceAsStream("/csv_files/ocupare_somaj2.csv"),
+                        java.nio.charset.StandardCharsets.UTF_8))) {
+
+            String lineCsv2;
+            while ((lineCsv2 = br2.readLine()) != null) {
+                lineCsv2 = lineCsv2.trim();
+                if (lineCsv2.isEmpty()) continue;
+
+                int lastComma = Math.max(lineCsv2.lastIndexOf(','), lineCsv2.lastIndexOf(';'));
+                if (lastComma != -1) {
+                    String denumire = lineCsv2.substring(0, lastComma).replace("\"", "").trim();
+                    String valoare = lineCsv2.substring(lastComma + 1).replace("\"", "").trim();
+                    data2.add(new Indicator(denumire, valoare));
+                } else {
+                    System.out.println("⚠️ Linie ignorată în CSV2: " + lineCsv2);
+                }
+            }
+            System.out.println("✅ Am încărcat " + data2.size() + " rânduri din CSV2.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        table2.setItems(data2);
+        table2.setFixedCellSize(25);
+
+        // actualizează automat înălțimea doar dacă există rânduri
+        table2.prefHeightProperty().bind(
+            Bindings.when(Bindings.isEmpty(table2.getItems()))
+                    .then(100) // înălțime minimă când nu sunt date
+                    .otherwise(
+                        table2.fixedCellSizeProperty().multiply(Bindings.size(table2.getItems()).add(1.01))
+                    )
+        );
+
+        // === Linie separator opțională ===
         Region line2 = new Region();
         line2.setMinHeight(1);
         line2.setMaxWidth(Double.MAX_VALUE);
         line2.setStyle("-fx-background-color: #d6d6d6;");
 
-        content2.getChildren().addAll(
-                title2,
-                createDataRow(content1, "Tinerii NEET, 15-24 ani, mii", "[0,00]"),
-                createDataRow(content1, "Rata tinerilor NEET, 15-24 ani, %", "[0,00]"),
-                createDataRow(content1, "Tinerii NEET, 15-29 ani, mii", "[0,00]"),
-                createDataRow(content1, "Rata tinerilor NEET, 15-29 ani, %", "[0,00]"),
-                createDataRow(content1, "Tinerii NEET, 15-34 ani, mii", "[0,00]"),
-                createDataRow(content1, "Rata tinerilor NEET, 15-34 ani, %", "[0,00]"),
-
-                line2
-        );
+        // === Adăugăm în content2 ===
+        content2.getChildren().addAll(title2, table2, line2);
         item2.getChildren().addAll(imageViewFileIcon2, content2);
 
         Image goalsImage = new Image(getClass().getResourceAsStream("/goalsImage.png"), 300, 150, false, false);
