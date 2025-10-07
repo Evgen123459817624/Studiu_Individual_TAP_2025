@@ -2,6 +2,8 @@ package org.example.studiu_individual_tap_2025;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ResourceBundle.Control;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -12,7 +14,9 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -39,17 +43,25 @@ public class AccidenteMuncaWindow {
         ImageView imageView1 = new ImageView(image1);
         Label label1 = new Label("Accidentele de muncă");
         label1.getStyleClass().add("main-title");
-        row1.getChildren().addAll(imageView1, label1);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        javafx.scene.control.Button homeButton = new javafx.scene.control.Button("🏠 Home");
+        homeButton.getStyleClass().add("home-button");
+        homeButton.setOnAction(e -> {
+            stage.close();
+        });
+        homeButton.getStyleClass().add("custom-button");
+        row1.getChildren().addAll(imageView1, label1, spacer, homeButton);
+
+
 
         HBox row2 = new HBox();
         row2.getStyleClass().add("sub-header-row");
         Label label2 = new Label("Indicatori cheie");
         label2.getStyleClass().add("section-title");
-        Label label3 = new Label("Actualizat la: [dd.mm.yyyy]");
-        label3.getStyleClass().add("date-label");
         Region spacer1 = new Region();
         HBox.setHgrow(spacer1, Priority.ALWAYS);
-        row2.getChildren().addAll(label2, spacer1, label3);
+        row2.getChildren().addAll(label2, spacer1);
 
         GridPane row3 = new GridPane();
         row3.getStyleClass().add("content-row");
@@ -73,6 +85,21 @@ public class AccidenteMuncaWindow {
         colIndicator1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDenumire()));
         colIndicator1.setPrefWidth(250);
 
+        // Wrap text în celulele coloanei "Indicator"
+        colIndicator1.setCellFactory(tc -> {
+            TableCell<Indicator, String> cell = new TableCell<>();
+            Text text = new Text();
+            text.wrappingWidthProperty().bind(colIndicator1.widthProperty().subtract(10));
+            text.textProperty().bind(cell.itemProperty());
+            cell.setGraphic(text);
+            cell.setPrefHeight(Control.TTL_DONT_CACHE); // înălțime automată
+            text.wrappingWidthProperty().addListener((obs, oldVal, newVal) -> {
+                cell.requestLayout(); // actualizează înălțimea când se schimbă dimensiunea coloanei
+            });
+            return cell;
+        });
+
+
         TableColumn<Indicator, String> colValoare1 = new TableColumn<>("Valoare");
         colValoare1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValoare()));
         colValoare1.setPrefWidth(100);
@@ -80,7 +107,7 @@ public class AccidenteMuncaWindow {
         table1.getColumns().addAll(colIndicator1, colValoare1);
         table1.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // === Citim datele din primul CSV ===
+        // === Citim datele din CSV ===
         ObservableList<Indicator> data1 = FXCollections.observableArrayList();
 
         try (BufferedReader br1 = new BufferedReader(
@@ -107,15 +134,13 @@ public class AccidenteMuncaWindow {
         }
 
         table1.setItems(data1);
-        table1.setFixedCellSize(25);
 
-        // actualizează automat înălțimea doar dacă există rânduri
+        double rowHeight = 100;
         table1.prefHeightProperty().bind(
-            Bindings.when(Bindings.isEmpty(table1.getItems()))
-                    .then(100) // înălțime minimă când nu sunt date
-                    .otherwise(
-                        table1.fixedCellSizeProperty().multiply(Bindings.size(table1.getItems()).add(1.01))
-                    )
+            Bindings.createDoubleBinding(
+                () -> rowHeight * data1.size() + 30,
+                data1
+            )
         );
 
         Region line = new Region();
@@ -144,6 +169,20 @@ public class AccidenteMuncaWindow {
         TableColumn<Indicator, String> colIndicator2 = new TableColumn<>("Indicator");
         colIndicator2.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDenumire()));
         colIndicator2.setPrefWidth(250);
+
+        // Wrap text în celulele coloanei "Indicator" exact ca la tabelul 1
+        colIndicator2.setCellFactory(tc -> {
+            TableCell<Indicator, String> cell = new TableCell<>();
+            Text text = new Text();
+            text.wrappingWidthProperty().bind(colIndicator2.widthProperty().subtract(10));
+            text.textProperty().bind(cell.itemProperty());
+            cell.setGraphic(text);
+            cell.setPrefHeight(Control.TTL_DONT_CACHE); // înălțime automată
+            text.wrappingWidthProperty().addListener((obs, oldVal, newVal) -> {
+                cell.requestLayout(); // actualizează înălțimea când se schimbă dimensiunea coloanei
+            });
+            return cell;
+        });
 
         TableColumn<Indicator, String> colValoare2 = new TableColumn<>("Valoare");
         colValoare2.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValoare()));
@@ -179,16 +218,16 @@ public class AccidenteMuncaWindow {
         }
 
         table2.setItems(data2);
-        table2.setFixedCellSize(25);
 
-        // actualizează automat înălțimea doar dacă există rânduri
+        // Înălțime dinamică a tabelului
+        double rowHeight2 = 100;
         table2.prefHeightProperty().bind(
-            Bindings.when(Bindings.isEmpty(table2.getItems()))
-                    .then(100) // înălțime minimă când nu sunt date
-                    .otherwise(
-                        table2.fixedCellSizeProperty().multiply(Bindings.size(table2.getItems()).add(1.01))
-                    )
+            Bindings.createDoubleBinding(
+                () -> rowHeight2 * data2.size() + 30,
+                data2
+            )
         );
+
 
         Region line2 = new Region();
         line2.setMinHeight(1);
@@ -236,6 +275,59 @@ public class AccidenteMuncaWindow {
         TextFlow textFlow = new TextFlow(text);
         textFlow.prefWidthProperty().bind(row4.widthProperty().subtract(40));
         row4.getChildren().addAll(title3, textFlow);
+
+        // === Creăm graficul circular pentru primul tabel ===
+        HBox chartCard1 = new HBox();
+        HBox.setHgrow(chartCard1, Priority.ALWAYS);
+        chartCard1.setMaxWidth(Double.MAX_VALUE);
+        chartCard1.setMinHeight(Region.USE_COMPUTED_SIZE);
+        chartCard1.getStyleClass().add("card");
+        chartCard1.getStyleClass().add("card4");
+        chartCard1.setAlignment(Pos.CENTER);
+
+        ObservableList<PieChart.Data> pieData1 = FXCollections.observableArrayList();
+
+        try {
+            double valoare1 = Double.parseDouble(data2.get(0).getValoare().replace(",", "."));
+            double valoare2 = Double.parseDouble(data2.get(1).getValoare().replace(",", "."));
+            valoare1 = valoare1 - valoare2;
+            pieData1.add(new PieChart.Data("Accidente nemortale (" + valoare1 + ")", valoare1));
+            pieData1.add(new PieChart.Data(data2.get(1).getDenumire() + " (" + valoare2 + ")", valoare2));
+        } catch (NumberFormatException e) {
+            System.out.println("Valoare invalidă!");
+        }
+
+
+        PieChart pieChart1 = new PieChart(pieData1);
+        pieChart1.setTitle("Accidente de muncă 2024");
+        pieChart1.setLabelsVisible(false);
+        pieChart1.setClockwise(true);
+        pieChart1.setStartAngle(180);
+
+        // Efect vizual 3D
+        pieChart1.setStyle(
+            "-fx-pie-label-visible: false;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0.5, 5, 5);" +
+            "-fx-padding: 15;" +
+            "-fx-background-radius: 20;"
+        );
+
+        chartCard1.getChildren().add(pieChart1);
+
+        // === HBox care conține ambele grafice ===
+        HBox chartsRow = new HBox(20);
+        chartsRow.setAlignment(Pos.CENTER);
+        chartsRow.setMaxWidth(Double.MAX_VALUE);
+        chartsRow.getStyleClass().add("card");
+        chartsRow.getStyleClass().add("card4");
+
+        // Adaugăm ambele grafice în același rând
+        chartsRow.getChildren().addAll(pieChart1);
+
+        // Adăugăm acest rând în GridPane, sub cardurile principale
+        row3.add(chartsRow, 0, 1, 3, 1); // ocupă 3 coloane
+        GridPane.setMargin(chartsRow, new Insets(20, 0, 0, 0));
+
 
         root.getChildren().addAll(row1, row2, row3, row4);
 

@@ -2,6 +2,8 @@ package org.example.studiu_individual_tap_2025;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ResourceBundle.Control;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -12,7 +14,12 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -38,17 +45,23 @@ public class CastigSalarialWindow {
         ImageView imageView1 = new ImageView(image1);
         Label label1 = new Label("Câștigul salarial și costul forței de muncă");
         label1.getStyleClass().add("main-title");
-        row1.getChildren().addAll(imageView1, label1);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        javafx.scene.control.Button homeButton = new javafx.scene.control.Button("🏠 Home");
+        homeButton.getStyleClass().add("home-button");
+        homeButton.setOnAction(e -> {
+            stage.close();
+        });
+        homeButton.getStyleClass().add("custom-button");
+        row1.getChildren().addAll(imageView1, label1, spacer, homeButton);
 
         HBox row2 = new HBox();
         row2.getStyleClass().add("sub-header-row");
         Label label2 = new Label("Indicatori cheie");
         label2.getStyleClass().add("section-title");
-        Label label3 = new Label("Actualizat la: [dd.mm.yyyy]");
-        label3.getStyleClass().add("date-label");
         Region spacer1 = new Region();
         HBox.setHgrow(spacer1, Priority.ALWAYS);
-        row2.getChildren().addAll(label2, spacer1, label3);
+        row2.getChildren().addAll(label2, spacer1);
 
         GridPane row3 = new GridPane();
         row3.getStyleClass().add("content-row");
@@ -81,6 +94,20 @@ public class CastigSalarialWindow {
         TableColumn<Indicator, String> colIndicator1 = new TableColumn<>("Indicator");
         colIndicator1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDenumire()));
         colIndicator1.setPrefWidth(250);
+
+        // Wrap text în celulele coloanei "Indicator"
+        colIndicator1.setCellFactory(tc -> {
+            TableCell<Indicator, String> cell = new TableCell<>();
+            Text text = new Text();
+            text.wrappingWidthProperty().bind(colIndicator1.widthProperty().subtract(10));
+            text.textProperty().bind(cell.itemProperty());
+            cell.setGraphic(text);
+            cell.setPrefHeight(Control.TTL_DONT_CACHE); // înălțime automată
+            text.wrappingWidthProperty().addListener((obs, oldVal, newVal) -> {
+                cell.requestLayout(); // actualizează înălțimea când se schimbă dimensiunea coloanei
+            });
+            return cell;
+        });
 
         TableColumn<Indicator, String> colValoare1 = new TableColumn<>("Valoare");
         colValoare1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValoare()));
@@ -116,16 +143,16 @@ public class CastigSalarialWindow {
         }
 
         table1.setItems(data1);
-        table1.setFixedCellSize(25);
 
-        // actualizează automat înălțimea doar dacă există rânduri
+        // Ajustăm înălțimea tabelului în funcție de numărul de rânduri
+        double rowHeight = 50;
         table1.prefHeightProperty().bind(
-            Bindings.when(Bindings.isEmpty(table1.getItems()))
-                    .then(100) // înălțime minimă când nu sunt date
-                    .otherwise(
-                        table1.fixedCellSizeProperty().multiply(Bindings.size(table1.getItems()).add(1.01))
-                    )
+            Bindings.createDoubleBinding(
+                () -> rowHeight * data1.size() + 30,
+                data1
+            )
         );
+
 
         Region line = new Region();
         line.setMinHeight(1);
@@ -164,6 +191,20 @@ public class CastigSalarialWindow {
         colIndicator2.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDenumire()));
         colIndicator2.setPrefWidth(250);
 
+        // Wrap text în celulele coloanei "Indicator"
+        colIndicator2.setCellFactory(tc -> {
+            TableCell<Indicator, String> cell = new TableCell<>();
+            Text text = new Text();
+            text.wrappingWidthProperty().bind(colIndicator2.widthProperty().subtract(10));
+            text.textProperty().bind(cell.itemProperty());
+            cell.setGraphic(text);
+            cell.setPrefHeight(Control.TTL_DONT_CACHE); // înălțime automată
+            text.wrappingWidthProperty().addListener((obs, oldVal, newVal) -> {
+                cell.requestLayout(); // actualizează înălțimea când se schimbă dimensiunea coloanei
+            });
+            return cell;
+        });
+
         TableColumn<Indicator, String> colValoare2 = new TableColumn<>("Valoare");
         colValoare2.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValoare()));
         colValoare2.setPrefWidth(100);
@@ -198,16 +239,16 @@ public class CastigSalarialWindow {
         }
 
         table2.setItems(data2);
-        table2.setFixedCellSize(25);
 
-        // actualizează automat înălțimea doar dacă există rânduri
+        // Ajustăm înălțimea tabelului în funcție de numărul de rânduri
+        double rowHeight2 = 50;
         table2.prefHeightProperty().bind(
-            Bindings.when(Bindings.isEmpty(table2.getItems()))
-                    .then(100) // înălțime minimă când nu sunt date
-                    .otherwise(
-                        table2.fixedCellSizeProperty().multiply(Bindings.size(table2.getItems()).add(1.01))
-                    )
+            Bindings.createDoubleBinding(
+                () -> rowHeight2 * data2.size() + 30,
+                data2
+            )
         );
+
 
         Region line2 = new Region();
         line2.setMinHeight(1);
@@ -256,6 +297,76 @@ public class CastigSalarialWindow {
         TextFlow textFlow = new TextFlow(text);
         textFlow.prefWidthProperty().bind(row4.widthProperty().subtract(40));
         row4.getChildren().addAll(title3, textFlow);
+
+        // === Creăm graficul de bare pentru comparația 2024 vs 2025 ===
+        CategoryAxis xAxis = new CategoryAxis();
+        xAxis.setLabel("Sector");
+
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Câștig salarial mediu (lei)");
+
+        BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
+        barChart.setTitle("Comparație câștig salarial mediu — 2024 vs 2025");
+
+        // === Extragem valorile din tabele ===
+        double bugetar2025 = 0;
+        double real2025 = 0;
+        double bugetar2024 = 0;
+        double real2024 = 0;
+
+        try {
+            
+            bugetar2025 = Double.parseDouble(data1.get(1).getValoare().replace(",", "."));
+            real2025 = Double.parseDouble(data1.get(2).getValoare().replace(",", "."));
+            bugetar2024 = Double.parseDouble(data2.get(1).getValoare().replace(",", "."));
+            real2024 = Double.parseDouble(data2.get(2).getValoare().replace(",", "."));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // === Seturile de date pentru fiecare an ===
+        XYChart.Series<String, Number> series2025 = new XYChart.Series<>();
+        series2025.setName("2025");
+        series2025.getData().add(new XYChart.Data<>("Sector bugetar", bugetar2025));
+        series2025.getData().add(new XYChart.Data<>("Sector real", real2025));
+
+        XYChart.Series<String, Number> series2024 = new XYChart.Series<>();
+        series2024.setName("2024");
+        series2024.getData().add(new XYChart.Data<>("Sector bugetar", bugetar2024));
+        series2024.getData().add(new XYChart.Data<>("Sector real", real2024));
+
+        barChart.getData().addAll(series2025, series2024);
+
+        // === Stilizare pentru aspect modern ===
+        barChart.setCategoryGap(25);
+        barChart.setBarGap(5);
+        barChart.setLegendVisible(true);
+        barChart.setAnimated(false);
+        barChart.setStyle("-fx-background-color: transparent;");
+
+        // === Afișăm valorile pe bare ===
+        for (XYChart.Series<String, Number> series : barChart.getData()) {
+            for (XYChart.Data<String, Number> data : series.getData()) {
+                Label valueLabel = new Label(String.format("%.0f", data.getYValue()));
+                valueLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
+                StackPane bar = (StackPane) data.getNode();
+                bar.getChildren().add(valueLabel);
+                StackPane.setAlignment(valueLabel, Pos.TOP_CENTER);
+                StackPane.setMargin(valueLabel, new Insets(0, 0, 10, 0));
+            }
+        }
+
+        // === Adăugăm graficul într-un card (HBox sau VBox) ===
+        barChart.getStyleClass().add("salary-chart");
+        HBox chartCard = new HBox();
+        chartCard.setAlignment(Pos.CENTER);
+        chartCard.getStyleClass().add("card");
+        chartCard.getChildren().add(barChart);
+        // Adăugăm acest rând în GridPane, sub cardurile principale
+        row3.add(chartCard, 0, 1, 3, 1); // ocupă 3 coloane
+        GridPane.setMargin(chartCard, new Insets(20, 0, 0, 0));
+
+
 
         root.getChildren().addAll(row1, row2, row3, row4);
 
