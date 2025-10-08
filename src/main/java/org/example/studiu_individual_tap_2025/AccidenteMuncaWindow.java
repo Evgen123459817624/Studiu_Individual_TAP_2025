@@ -24,6 +24,9 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
+
+
+
 public class AccidenteMuncaWindow {
 
 
@@ -78,7 +81,7 @@ public class AccidenteMuncaWindow {
         title1.setWrapText(true);
         title1.getStyleClass().add("card-title");
 
-        // === Creăm primul tabel ===
+        // Creăm primul tabel
         TableView<Indicator> table1 = new TableView<>();
 
         TableColumn<Indicator, String> colIndicator1 = new TableColumn<>("Indicator");

@@ -27,6 +27,7 @@ import javafx.stage.Stage;
 public class NrSalariatiWindow {
 
 
+
     public void open() {
         Stage stage = new Stage();
         stage.setTitle("Numărul salariaților și locurile vacante");

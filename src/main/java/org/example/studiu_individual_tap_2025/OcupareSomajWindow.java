@@ -66,6 +66,7 @@ public class OcupareSomajWindow {
         GridPane row3 = new GridPane();
         row3.getStyleClass().add("content-row");
         HBox item1 = new HBox();
+        VBox content1 = new VBox(10);
         HBox.setHgrow(item1, Priority.ALWAYS);
         item1.setMaxWidth(Double.MAX_VALUE);
         item1.setMinHeight(Region.USE_COMPUTED_SIZE);
@@ -74,7 +75,7 @@ public class OcupareSomajWindow {
         Image fileIcon = new Image(getClass().getResourceAsStream("/fileIcon.png"), 50, 60, false, false);
         ImageView imageViewFileIcon1 = new ImageView(fileIcon);
                 // === în loc de VBox content1 = new VBox(); ===
-        VBox content1 = new VBox(10);
+
         Label title1 = new Label("Trim. I 2025");
         title1.setWrapText(true);
         title1.getStyleClass().add("card-title");

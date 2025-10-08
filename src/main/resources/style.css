@@ -9,7 +9,7 @@
 
 /* Toate rândurile (HBox) au lățime fixă */
 .hbox-row {
-    -fx-pref-width: 400px;   /* aici pui cât vrei, ex. 200px sau 400px */
+    -fx-pref-width: 400px;
     -fx-max-width: 400px;
     -fx-min-width: 400px;
 
